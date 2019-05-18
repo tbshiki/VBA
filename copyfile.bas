@@ -10,18 +10,23 @@ strDestinationFileDir = ActiveWorkbook.Path
 Dim lastRow As Long
 lastRow = Cells(Rows.Count, 8).End(xlUp).Row
 
-Dim i As Long '列用
-Dim j As Long '行用
+Dim firstCol As Long
+Dim lastCol As Long
+firstCol = 8 'firstCol列目から
+lastCol = 17 'lastCol列目まで
+
+Dim i As Long '行用
+Dim j As Long '列用
 For i = 2 To lastRow
     
-    For j = 1 To 10
-    
+    For j = 0 To lastCol - firstCol
+CONTINUE:
         Dim strSourceFile As String 'ソースディレクトリ+ファイル名
-        strSourceFile = Cells(i, 7 + j).Value
+        strSourceFile = Cells(i, firstCol + j).Value
         
         If strSourceFile = "" Then
         
-            Range(Cells(i, 7 + j), Cells(i, 17)).Interior.ColorIndex = 36
+            Range(Cells(i, firstCol + j), Cells(i, lastCol)).Interior.ColorIndex = 36
         
             Exit For
         
@@ -35,7 +40,7 @@ For i = 2 To lastRow
         strFileName = LCase(strFileName)
         
         Dim squareFlag As Boolean
-        If j = 1 And squareFlag = False Then '1枚目用square条件分岐
+        If j = 0 And squareFlag = False Then '1枚目用square条件分岐
             
             Dim dot As Long 'ファイル名をわける為の.の位置
             Dim strNonExtension As String
@@ -45,28 +50,39 @@ For i = 2 To lastRow
             strExtension = Right(strFileName, Len(strFileName) - dot + 1)
         
             FileCopy strSourceFile, strDestinationFileDir & "\" & strNonExtension & "square" & strExtension  '移動とリネームを同時に
+            Cells(i, firstCol - 1).Value = "xxxxxxxxxx" & strNonExtension & "square" & strExtension
             
             Sleep 300
             
             squareFlag = True
+            pos = 0
+            dot = 0
+            strSourceFile = ""
+            strFileName = ""
+            strNonExtension = ""
+            strExtension = ""
+            
+            GoTo CONTINUE
         
         Else
             
             FileCopy strSourceFile, strDestinationFileDir & "\" & strFileName
+            Cells(i, firstCol + j).Value = "xxxxxxxxxx" & strFileName
             
             Sleep 300
             
         End If
         
+        pos = 0
+        dot = 0
+        strSourceFile = ""
+        strFileName = ""
+        strNonExtension = ""
+        strExtension = ""
+        
     Next j
     
     squareFlag = False
-    pos = 0
-    dot = 0
-    strSourceFile = ""
-    strFileName = ""
-    strNonExtension = ""
-    strExtension = ""
 
 Next i
 
